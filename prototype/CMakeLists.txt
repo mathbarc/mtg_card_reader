@@ -9,7 +9,7 @@ if(${DEBUG})
     add_compile_definitions(DEBUG)
 endif()
 
-find_package(OpenCV COMPONENTS core highgui flann imgcodecs imgproc REQUIRED)
+find_package(OpenCV COMPONENTS core highgui features2d imgcodecs imgproc REQUIRED)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE PATH "Include dir")
 

@@ -2,6 +2,7 @@
 #define CARD_READER_CPP
 
 #include <opencv2/core/core.hpp>
+#include <opencv2/features2d/features2d.hpp>
 
 enum class Type
 {
@@ -46,7 +47,10 @@ class CardReader
         std::vector<CardPosition> findCards(const cv::Mat& image);
         std::vector<cv::Mat> extractCards(const cv::Mat& image, const std::vector<cv::Rect>& rois);
         CardData getCardData(const cv::Mat& cardImage);
+        cv::Mat createReferenceCard(int height=900, int width=600);
 
+    private:
+        cv::Ptr<cv::SIFT> keypointsExtractor;
 };
 
 

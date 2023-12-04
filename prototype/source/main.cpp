@@ -28,6 +28,8 @@ int main(int argv, char** args)
         cv::circle(image, position.bottomLeft, 2, cv::Scalar(0,255,0), -1);
     }
 
+
+
     cv::namedWindow("card", cv::WINDOW_NORMAL);
     cv::imshow("card", image);
     cv::waitKey();

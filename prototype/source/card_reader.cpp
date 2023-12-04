@@ -8,7 +8,9 @@
 
 
 CardReader::CardReader()
-{}
+{
+    this->keypointsExtractor = cv::SIFT::create();
+}
 
 
 std::vector<CardPosition> CardReader::findCards(const cv::Mat& image)
@@ -30,42 +32,47 @@ std::vector<CardPosition> CardReader::findCards(const cv::Mat& image)
     cv::dilate(mask, mask, cv::Mat());
     cv::erode(mask, mask, cv::Mat());
 
-    std::vector<std::vector<cv::Point>> contours;
-    cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
-
-    std::vector<cv::Point> biggest;
-    float biggestArea = FLT_MIN;
-    int contourIndex = 0;
-
-    for(int i = 0; i<contours.size(); i++)
-    {
-
-        float area = cv::contourArea(contours[i]);
-        if(area > biggestArea)
-        {
-            biggestArea = area;
-            biggest = contours[i];
-            contourIndex = i;
-        }
-    }
+    std::vector<cv::KeyPoint> keypoints;
+    this->keypointsExtractor->detect(grey, keypoints, mask);
 
 
-    cv::Rect roi = cv::boundingRect(biggest);
 
 
     #ifdef DEBUG
 
-        std::cout<<minV<<", "<<mean<<", "<<stddev<<", "<<biggestArea<<std::endl;
         cv::namedWindow("result", cv::WINDOW_NORMAL);
-        cv::namedWindow("mask", cv::WINDOW_NORMAL);
-        cv::rectangle(image, roi, cv::Scalar(255,0,0),2);
-        cv::drawContours(image,contours,contourIndex, cv::Scalar(0,255,0),2);
-        cv::imwrite("result.png", image);
+//        cv::namedWindow("mask", cv::WINDOW_NORMAL);
+
+        cv::drawKeypoints(image, keypoints, image,cv::Scalar(0,255,0));
+
         cv::imshow("result", image);
-        cv::imshow("mask", mask);
+//        cv::imshow("mask", mask);
         cv::waitKey();
     #endif
 
 
     return cardFound;
+}
+
+cv::Mat CardReader::createReferenceCard(int height, int width)
+{
+    cv::Mat reference = cv::Mat::zeros(height,width,CV_8U);
+
+    int borderWidth = 0.025*std::max(width,height);
+
+
+
+    cv::Rect border(width*0.025, height*0.025,width*0.95, borderWidth);
+    reference(border) = 255;
+    border.y = height*0.95;
+    reference(border) = 255;
+
+
+
+    border = cv::Rect(width*0.025, height*0.025,borderWidth, height*0.95);
+    reference(border) = 255;
+    border.x = width * 0.94;
+    reference(border) = 255;
+
+    return reference;
 }
